@@ -68,10 +68,25 @@ class Layout:
             s += len(v)
         return s
     
+    def getBoundingBox(self):
+        result = None
+        for _, v in self.cell_ref.items():
+            for ref in v:
+                assert isinstance(ref, CellReference)
+                bb = ref.get_bounding_box().reshape(-1).tolist()
+                if result == None:
+                    result = bb
+                else:
+                    result = [min(bb[0], result[0]), min(bb[0], result[0]), max(bb[0], result[0]), max(bb[0], result[0])]
+        return np.asarray(result)
+                
+
+    
 
 if __name__ == "__main__":
     layout = Layout("gcd_45nm", layer=11)
     print(f"[NUM CELLS] : {layout.getNumCells()}")
+    print(layout.getBoundingBox())
     
 
 
