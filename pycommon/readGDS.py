@@ -680,8 +680,8 @@ if __name__ == "__main__":
     # reader = ReaderGDS("tmp/layout.gds")
     # reader.draw(0.02, 200, layers=(10, ), center=False, noSRef=False)
 
-    basedir = "work/"
-    filename = "gcd.gds"
+    basedir = "/data/zyyu/GDSfile/"
+    filename = "gcd_7nm.gds"
     reader = ReaderGDS(basedir + filename)
     structs = reader.structs
     for name, struct in structs.items(): 
