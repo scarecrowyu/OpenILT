@@ -332,24 +332,24 @@ class Mask:
                 #Normal edge 
                 normal_pairs = edge_h._normal_edge_pairs
                 ref_points = torch.stack((normal_pairs[:,0], (normal_pairs[:,1]+normal_pairs[:,3])//2), dim=1)
-                image_outer = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
-                image_inner = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
+                image_outer = nominalImage[ref_points[:,0]+6, ref_points[:,1]]
+                image_inner = nominalImage[ref_points[:,0]-6, ref_points[:,1]]
                 edge_h._normal_offsets[image_outer >= 0.5] -= normal_step
                 edge_h._normal_offsets[image_inner <= 0.5] += normal_step
                 #Corner edge
                 if edge_h._corner_edge_pairs != None:
                     corner_pairs = edge_h._corner_edge_pairs
                     ref_points = torch.stack((corner_pairs[:,0],(corner_pairs[:,1]+corner_pairs[:,3])//2), dim=1)
-                    image_outer = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
-                    image_inner = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
+                    image_outer = nominalImage[ref_points[:,0]+6, ref_points[:,1]]
+                    image_inner = nominalImage[ref_points[:,0]-6, ref_points[:,1]]
                     edge_h._corner_offsets[image_outer >= 0.5] -= corner_step
                     edge_h._corner_offsets[image_inner <= 0.5] += corner_step
                 #Projection edge
                 if edge_h._projection_edge_pairs != None:
                     projection_pairs = edge_h._projection_edge_pairs
                     ref_points = torch.stack((projection_pairs[:,0], (projection_pairs[:,1]+projection_pairs[:,3])//2), dim=1)
-                    image_outer = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
-                    image_inner = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
+                    image_outer = nominalImage[ref_points[:,0]+6, ref_points[:,1]]
+                    image_inner = nominalImage[ref_points[:,0]-6, ref_points[:,1]]
                     edge_h._projection_offsets[image_outer >= 0.5] -= projection_step
                     edge_h._projection_offsets[image_inner <= 0.5] += projection_step
                 edge_h.smooth(edge_gap= 6)
@@ -358,24 +358,24 @@ class Mask:
                 #Normal edge 
                 normal_pairs = edge_h._normal_edge_pairs
                 ref_points = torch.stack((normal_pairs[:,0], (normal_pairs[:,1]+normal_pairs[:,3])//2), dim=1)
-                image_outer = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
-                image_inner = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
+                image_outer = nominalImage[ref_points[:,0]-6, ref_points[:,1]]
+                image_inner = nominalImage[ref_points[:,0]+6, ref_points[:,1]]
                 edge_h._normal_offsets[image_outer >= 0.5] += normal_step # image expand
                 edge_h._normal_offsets[image_inner <= 0.5] -= normal_step # image shrink
                 #Corner edge
                 if edge_h._corner_edge_pairs != None:
                     corner_pairs = edge_h._corner_edge_pairs
                     ref_points = torch.stack((corner_pairs[:,0],(corner_pairs[:,1]+corner_pairs[:,3])//2), dim=1)
-                    image_outer = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
-                    image_inner = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
+                    image_outer = nominalImage[ref_points[:,0]-6, ref_points[:,1]]
+                    image_inner = nominalImage[ref_points[:,0]+6, ref_points[:,1]]
                     edge_h._corner_offsets[image_outer >= 0.5] += corner_step # image expand 
                     edge_h._corner_offsets[image_inner <= 0.5] -= corner_step # image shrink
                 #Projection edge
                 if edge_h._projection_edge_pairs != None:
                     projection_pairs = edge_h._projection_edge_pairs
                     ref_points = torch.stack((projection_pairs[:,0], (projection_pairs[:,1]+projection_pairs[:,3])//2), dim=1)
-                    image_outer = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
-                    image_inner = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
+                    image_outer = nominalImage[ref_points[:,0]-6, ref_points[:,1]]
+                    image_inner = nominalImage[ref_points[:,0]+6, ref_points[:,1]]
                     edge_h._projection_offsets[image_outer >= 0.5] += projection_step
                     edge_h._projection_offsets[image_inner <= 0.5] -= projection_step
                 edge_h.smooth(edge_gap= 6)
@@ -385,52 +385,52 @@ class Mask:
                 #Normal edge 
                 normal_pairs = edge_v._normal_edge_pairs
                 ref_points = torch.stack(((normal_pairs[:,0]+normal_pairs[:,2])//2, normal_pairs[:,1]), dim=1)
-                image_outer = nominalImage[ref_points[:,0], ref_points[:,1]-15]
-                image_inner = nominalImage[ref_points[:,0], ref_points[:,1]+15]
-                edge_v._normal_offsets[image_outer >= 0.8] += normal_step 
-                edge_v._normal_offsets[image_inner <= 0.2] -= normal_step
+                image_outer = nominalImage[ref_points[:,0], ref_points[:,1]-6]
+                image_inner = nominalImage[ref_points[:,0], ref_points[:,1]+6]
+                edge_v._normal_offsets[image_outer >= 0.5] += normal_step 
+                edge_v._normal_offsets[image_inner <= 0.5] -= normal_step
                 #Corner edge
                 if edge_v._corner_edge_pairs != None:
                     corner_pairs = edge_v._corner_edge_pairs
                     ref_points = torch.stack(((corner_pairs[:,0]+corner_pairs[:,2])//2, corner_pairs[:,1]), dim=1)
-                    image_outer = nominalImage[ref_points[:,0], ref_points[:,1]-15]
-                    image_inner = nominalImage[ref_points[:,0], ref_points[:,1]+15]
-                    edge_v._corner_offsets[image_outer >= 0.8] += corner_step 
-                    edge_v._corner_offsets[image_inner <= 0.2] -= corner_step
+                    image_outer = nominalImage[ref_points[:,0], ref_points[:,1]-6]
+                    image_inner = nominalImage[ref_points[:,0], ref_points[:,1]+6]
+                    edge_v._corner_offsets[image_outer >= 0.5] += corner_step 
+                    edge_v._corner_offsets[image_inner <= 0.5] -= corner_step
                 #Projection edge
                 if edge_v._projection_edge_pairs != None:
                     projection_pairs = edge_v._projection_edge_pairs
                     ref_points = torch.stack(((projection_pairs[:,0]+projection_pairs[:,2])//2, projection_pairs[:,1]), dim=1)
-                    image_outer = nominalImage[ref_points[:,0], ref_points[:,1]-15]
-                    image_inner = nominalImage[ref_points[:,0], ref_points[:,1]+15]
-                    edge_v._projection_offsets[image_outer >= 0.8] += projection_step 
-                    edge_v._projection_offsets[image_inner <= 0.2] -= projection_step
+                    image_outer = nominalImage[ref_points[:,0], ref_points[:,1]-6]
+                    image_inner = nominalImage[ref_points[:,0], ref_points[:,1]+6]
+                    edge_v._projection_offsets[image_outer >= 0.5] += projection_step 
+                    edge_v._projection_offsets[image_inner <= 0.5] -= projection_step
                 edge_v.smooth(edge_gap= 6)
 
             elif edge_v.direction() == 'up':
                 #Normal edge 
                 normal_pairs = edge_v._normal_edge_pairs
                 ref_points = torch.stack(((normal_pairs[:,0]+normal_pairs[:,2])//2, normal_pairs[:,1]), dim=1)
-                image_outer = nominalImage[ref_points[:,0], ref_points[:,1]+15]
-                image_inner = nominalImage[ref_points[:,0], ref_points[:,1]-15]
-                edge_v._normal_offsets[image_outer >= 0.8] -= normal_step 
-                edge_v._normal_offsets[image_inner <= 0.2] += normal_step
+                image_outer = nominalImage[ref_points[:,0], ref_points[:,1]+6]
+                image_inner = nominalImage[ref_points[:,0], ref_points[:,1]-6]
+                edge_v._normal_offsets[image_outer >= 0.5] -= normal_step 
+                edge_v._normal_offsets[image_inner <= 0.5] += normal_step
                 #Corner edge
                 if edge_v._corner_edge_pairs != None:
                     corner_pairs = edge_v._corner_edge_pairs
                     ref_points = torch.stack(((corner_pairs[:,0]+corner_pairs[:,2])//2, corner_pairs[:,1]), dim=1)
-                    image_outer = nominalImage[ref_points[:,0], ref_points[:,1]+15]
-                    image_inner = nominalImage[ref_points[:,0], ref_points[:,1]-15]
-                    edge_v._corner_offsets[image_outer >= 0.8] -= corner_step 
-                    edge_v._corner_offsets[image_inner <= 0.2] += corner_step
+                    image_outer = nominalImage[ref_points[:,0], ref_points[:,1]+6]
+                    image_inner = nominalImage[ref_points[:,0], ref_points[:,1]-6]
+                    edge_v._corner_offsets[image_outer >= 0.5] -= corner_step 
+                    edge_v._corner_offsets[image_inner <= 0.5] += corner_step
                 #Projection edge
                 if edge_v._projection_edge_pairs != None:
                     projection_pairs = edge_v._projection_edge_pairs
                     ref_points = torch.stack(((projection_pairs[:,0]+projection_pairs[:,2])//2, projection_pairs[:,1]), dim=1)
-                    image_outer = nominalImage[ref_points[:,0], ref_points[:,1]+15]
-                    image_inner = nominalImage[ref_points[:,0], ref_points[:,1]-15]
-                    edge_v._projection_offsets[image_outer >= 0.8] -= projection_step 
-                    edge_v._projection_offsets[image_inner <= 0.2] += projection_step
+                    image_outer = nominalImage[ref_points[:,0], ref_points[:,1]+6]
+                    image_inner = nominalImage[ref_points[:,0], ref_points[:,1]-6]
+                    edge_v._projection_offsets[image_outer >= 0.5] -= projection_step 
+                    edge_v._projection_offsets[image_inner <= 0.5] += projection_step
                 edge_v.smooth(edge_gap= 6)
                 
     def updateMask(self):
