@@ -36,15 +36,15 @@ class FragmentsOneEdge:
         
     def add_corner_edge_pairs(self, edge_pairs):
         self._corner_edge_pairs = edge_pairs
-        self._corner_offsets = torch.zeros(edge_pairs.shape[0])
+        self._corner_offsets = torch.zeros(edge_pairs.shape[0]).long()
     
     def add_projection_edge_pairs(self, edge_pairs):
         self._projection_edge_pairs = edge_pairs
-        self._projection_offsets = torch.zeros(edge_pairs.shape[0])
+        self._projection_offsets = torch.zeros(edge_pairs.shape[0]).long()
 
     def add_normal_edge_pairs(self, edge_pairs):
         self._normal_edge_pairs = edge_pairs
-        self._normal_offsets = torch.zeros(edge_pairs.shape[0]) 
+        self._normal_offsets = torch.zeros(edge_pairs.shape[0]).long()
 
     def corner_edge_pairs(self):
         return self._corner_edge_pairs
@@ -78,7 +78,7 @@ class FragmentsOneEdge:
         for i in range(1, len(cat_offsets-1)):
             if cat_offsets[i] - cat_offsets[i-1] > edge_gap:
                 cat_offsets[i] = cat_offsets[i-1] + edge_gap
-            elif cat_offsets[i] - cat_offsets[i-1] < -edge_gap:
+            elif cat_offsets[i] - cat_offsets[i-1] < - edge_gap:
                 cat_offsets[i] = cat_offsets[i-1] - edge_gap
         if self._corner_offsets == None:
             self._normal_offsets = cat_offsets
@@ -315,11 +315,11 @@ class Mask:
                     print(fragment.ref_edge())
                 p1 = p2
     
-    def maskedge_smooth(self, gap_threshold):
-        '''
-        The perpendicular gap between neighbouring fragments should be no larger than the threshold
-        '''
-        pass
+    # def maskedge_smooth(self, gap_threshold):
+    #     '''
+    #     The perpendicular gap between neighbouring fragments should be no larger than the threshold
+    #     '''
+    #     pass
 
         
 
@@ -334,25 +334,25 @@ class Mask:
                 ref_points = torch.stack((normal_pairs[:,0], (normal_pairs[:,1]+normal_pairs[:,3])//2), dim=1)
                 image_outer = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
                 image_inner = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
-                edge_h._normal_offsets[image_outer >= 0.8] -= normal_step
-                edge_h._normal_offsets[image_inner <= 0.2] += normal_step
+                edge_h._normal_offsets[image_outer >= 0.5] -= normal_step
+                edge_h._normal_offsets[image_inner <= 0.5] += normal_step
                 #Corner edge
                 if edge_h._corner_edge_pairs != None:
                     corner_pairs = edge_h._corner_edge_pairs
                     ref_points = torch.stack((corner_pairs[:,0],(corner_pairs[:,1]+corner_pairs[:,3])//2), dim=1)
                     image_outer = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
                     image_inner = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
-                    edge_h._corner_offsets[image_outer >= 0.8] -= corner_step
-                    edge_h._corner_offsets[image_inner <= 0.2] += corner_step
+                    edge_h._corner_offsets[image_outer >= 0.5] -= corner_step
+                    edge_h._corner_offsets[image_inner <= 0.5] += corner_step
                 #Projection edge
                 if edge_h._projection_edge_pairs != None:
                     projection_pairs = edge_h._projection_edge_pairs
                     ref_points = torch.stack((projection_pairs[:,0], (projection_pairs[:,1]+projection_pairs[:,3])//2), dim=1)
                     image_outer = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
                     image_inner = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
-                    edge_h._projection_offsets[image_outer >= 0.8] -= projection_step
-                    edge_h._projection_offsets[image_inner <= 0.2] += projection_step
-                edge_h.smooth(edge_gap= 10)
+                    edge_h._projection_offsets[image_outer >= 0.5] -= projection_step
+                    edge_h._projection_offsets[image_inner <= 0.5] += projection_step
+                edge_h.smooth(edge_gap= 6)
 
             elif edge_h.direction() == 'left':
                 #Normal edge 
@@ -360,25 +360,25 @@ class Mask:
                 ref_points = torch.stack((normal_pairs[:,0], (normal_pairs[:,1]+normal_pairs[:,3])//2), dim=1)
                 image_outer = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
                 image_inner = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
-                edge_h._normal_offsets[image_outer >= 0.8] += normal_step # image expand
-                edge_h._normal_offsets[image_inner <= 0.2] -= normal_step # image shrink
+                edge_h._normal_offsets[image_outer >= 0.5] += normal_step # image expand
+                edge_h._normal_offsets[image_inner <= 0.5] -= normal_step # image shrink
                 #Corner edge
                 if edge_h._corner_edge_pairs != None:
                     corner_pairs = edge_h._corner_edge_pairs
                     ref_points = torch.stack((corner_pairs[:,0],(corner_pairs[:,1]+corner_pairs[:,3])//2), dim=1)
                     image_outer = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
                     image_inner = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
-                    edge_h._corner_offsets[image_outer >= 0.8] += corner_step # image expand 
-                    edge_h._corner_offsets[image_inner <= 0.2] -= corner_step # image shrink
+                    edge_h._corner_offsets[image_outer >= 0.5] += corner_step # image expand 
+                    edge_h._corner_offsets[image_inner <= 0.5] -= corner_step # image shrink
                 #Projection edge
                 if edge_h._projection_edge_pairs != None:
                     projection_pairs = edge_h._projection_edge_pairs
                     ref_points = torch.stack((projection_pairs[:,0], (projection_pairs[:,1]+projection_pairs[:,3])//2), dim=1)
                     image_outer = nominalImage[ref_points[:,0]-15, ref_points[:,1]]
                     image_inner = nominalImage[ref_points[:,0]+15, ref_points[:,1]]
-                    edge_h._projection_offsets[image_outer >= 0.8] += projection_step
-                    edge_h._projection_offsets[image_inner <= 0.2] -= projection_step
-                edge_h.smooth(edge_gap= 10)
+                    edge_h._projection_offsets[image_outer >= 0.5] += projection_step
+                    edge_h._projection_offsets[image_inner <= 0.5] -= projection_step
+                edge_h.smooth(edge_gap= 6)
 
         for edge_v in self._fragments_v:
             if edge_v.direction() == 'down':
@@ -405,7 +405,7 @@ class Mask:
                     image_inner = nominalImage[ref_points[:,0], ref_points[:,1]+15]
                     edge_v._projection_offsets[image_outer >= 0.8] += projection_step 
                     edge_v._projection_offsets[image_inner <= 0.2] -= projection_step
-                edge_v.smooth(edge_gap= 10)
+                edge_v.smooth(edge_gap= 6)
 
             elif edge_v.direction() == 'up':
                 #Normal edge 
@@ -431,7 +431,7 @@ class Mask:
                     image_inner = nominalImage[ref_points[:,0], ref_points[:,1]-15]
                     edge_v._projection_offsets[image_outer >= 0.8] -= projection_step 
                     edge_v._projection_offsets[image_inner <= 0.2] += projection_step
-                edge_v.smooth(edge_gap= 10)
+                edge_v.smooth(edge_gap= 6)
                 
     def updateMask(self):
         mask = self._mask.clone()
@@ -474,8 +474,6 @@ class Mask:
             elif edge_h.direction() == 'left':
                 normal_pairs = edge_h._normal_edge_pairs
                 normal_offsets = edge_h._normal_offsets
-                corner_pairs = edge_h._corner_edge_pairs
-                corner_offsets = edge_h._corner_offsets
                 assert normal_pairs.shape[0] == normal_offsets.shape[0]
                 for i in range(normal_offsets.shape[0]):
                     if normal_offsets[i] > 0.01:
@@ -483,9 +481,9 @@ class Mask:
                     elif normal_offsets[i] < -0.01:
                         mask[normal_pairs[i,0] : normal_pairs[i,0]-normal_offsets[i], normal_pairs[i,3] : normal_pairs[i, 1]+1] = 0
                 if edge_h._corner_edge_pairs != None:
-                    assert corner_pairs.shape[0] == corner_offsets.shape[0] 
                     corner_pairs = edge_h._corner_edge_pairs
-                    corner_offsets = edge_h._corner_offsets   
+                    corner_offsets = edge_h._corner_offsets
+                    assert corner_pairs.shape[0] == corner_offsets.shape[0]    
                     for i in range(corner_offsets.shape[0]):
                         if corner_offsets[i] > 0.01:
                             mask[corner_pairs[i,0]-corner_offsets[i] : corner_pairs[i,0], corner_pairs[i,3] : corner_pairs[i, 1]+1] = 1
@@ -516,7 +514,7 @@ class Mask:
                     mask[normal_pairs[i,0] : normal_pairs[i,2]+1, normal_pairs[i,1]-normal_offsets[i] : normal_pairs[i,1]] = 1
                 elif normal_offsets[i] < -0.01:
                     mask[normal_pairs[i,0] : normal_pairs[i,2]+1, normal_pairs[i,1] : normal_pairs[i,1]-normal_offsets[i]] = 0
-                if edge_v.corner_edge_pairs != None:
+                if edge_v._corner_edge_pairs != None:
                     corner_pairs = edge_v._corner_edge_pairs
                     corner_offsets = edge_v._corner_offsets
                     assert corner_pairs.shape[0] == corner_offsets.shape[0] 
@@ -524,7 +522,7 @@ class Mask:
                         mask[corner_pairs[i,0] : corner_pairs[i,2]+1, corner_pairs[i,1]-corner_offsets[i] : corner_pairs[i,1]] = 1
                     elif normal_offsets[i] < -0.01:
                         mask[corner_pairs[i,0] : corner_pairs[i,2]+1, corner_pairs[i,1] : corner_pairs[i,1]-corner_offsets[i]] = 0                
-                if edge_v.projection_edge_pairs != None:
+                if edge_v._projection_edge_pairs != None:
                     projection_pairs = edge_v._projection_edge_pairs
                     projection_offsets = edge_v._projection_offsets
                     outermost=torch.max(torch.max(corner_offsets), torch.max(normal_offsets))
@@ -548,7 +546,7 @@ class Mask:
                     mask[normal_pairs[i,2] : normal_pairs[i,0]+1, normal_pairs[i,1]+1 : normal_pairs[i,1]+1+normal_offsets[i]] = 1
                 elif normal_offsets[i] < -0.01:
                     mask[normal_pairs[i,2] : normal_pairs[i,0]+1, normal_pairs[i,1]-normal_offsets[i] : normal_pairs[i,1]] = 0
-                if edge_v.corner_edge_pairs != None:
+                if edge_v._corner_edge_pairs != None:
                     corner_pairs = edge_v._corner_edge_pairs
                     corner_offsets = edge_v._corner_offsets
                     assert corner_pairs.shape[0] == corner_offsets.shape[0] 
@@ -556,7 +554,7 @@ class Mask:
                         mask[corner_pairs[i,2] : corner_pairs[i,0]+1, corner_pairs[i,1]+1 : corner_pairs[i,1]+1+corner_offsets[i]] = 1
                     elif normal_offsets[i] < -0.01:
                         mask[corner_pairs[i,2] : corner_pairs[i,0]+1, corner_pairs[i,1]-corner_offsets[i] : corner_pairs[i,1]] = 0                
-                if edge_v.projection_edge_pairs != None:
+                if edge_v._projection_edge_pairs != None:
                     projection_pairs = edge_v._projection_edge_pairs
                     projection_offsets = edge_v._projection_offsets
                     outermost=torch.max(torch.max(corner_offsets), torch.max(normal_offsets))
