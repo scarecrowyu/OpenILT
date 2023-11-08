@@ -93,5 +93,5 @@ for idx in range(cfg._config["Iterations"]):
     cv2.imwrite(f"./tmp/mbopc_{idx}_mask.png", (mask * 255).detach().cpu().numpy())
     cv2.imwrite(f"./tmp/mbopc_{idx}_wafer.png", (printedNom* 255).detach().cpu().numpy())
     print(f"[Iteration {idx}]: L2 {l2:.0f}; PVBand {pvb:.0f}; EPE {epe:.0f}; Shot: {shot:.0f}; ")
-    pattern.update_fragments(projection_step=6, corner_step=6, normal_step=10, nominalImage=printedNom)
+    pattern.update_fragments(projection_step=1, corner_step=1, normal_step=2, nominalImage=printedNom)
     mask = pattern.updateMask()
