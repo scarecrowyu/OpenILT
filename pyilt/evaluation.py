@@ -199,6 +199,39 @@ def epecheck(mask, target, vposes, hposes):
         vioMap[v_out_site[:, 0].long(), v_out_site[:, 1].long()] = 1
     return inner, outer, vioMap
 
+def epeCheckpoint(target):
+    vposes, hposes = boundaries(target)
+    inner = 0
+    outer = 0
+    epeMap = torch.zeros_like(target)
+
+    for idx in range(vposes.shape[0]):
+        center = (vposes[idx, :, 0] + vposes[idx, :, 1]) / 2
+        center = center.int().float().unsqueeze(0) #(1, 2)
+        if (vposes[idx, 0, 1] - vposes[idx, 0, 0]) <= MIN_EPE_CHECK_LENGTH:
+            sample = center
+            epeMap[sample[:, 0].long(), sample[:, 1].long()] = 1
+        else:
+            sampleY = torch.cat((torch.arange(vposes[idx, 0, 0] + EPE_CHECK_START_INTERVEL, center[0, 0] + 1, step = EPE_CHECK_INTERVEL), 
+                                 torch.arange(vposes[idx, 0, 1] - EPE_CHECK_START_INTERVEL, center[0, 0],     step = -EPE_CHECK_INTERVEL))).unique()
+            sample = vposes[idx, :, 0].repeat(sampleY.shape[0], 1)
+            sample[:, 0] = sampleY
+            epeMap[sample[:, 0].long(), sample[:, 1].long()] = 1
+
+    for idx in range(hposes.shape[0]):
+        center = (hposes[idx, :, 0] + hposes[idx, :, 1]) / 2
+        center = center.int().float().unsqueeze(0)
+        if (hposes[idx, 1, 1] - hposes[idx, 1, 0]) <= MIN_EPE_CHECK_LENGTH:
+            sample = center
+            epeMap[sample[:, 0].long(), sample[:, 1].long()] = 1
+        else: 
+            sampleX = torch.cat((torch.arange(hposes[idx, 1, 0] + EPE_CHECK_START_INTERVEL, center[0, 1] + 1, step = EPE_CHECK_INTERVEL), 
+                                 torch.arange(hposes[idx, 1, 1] - EPE_CHECK_START_INTERVEL, center[0, 1],     step = -EPE_CHECK_INTERVEL))).unique()
+            sample = hposes[idx, :, 0].repeat(sampleX.shape[0], 1)
+            sample[:, 1] = sampleX
+            epeMap[sample[:, 0].long(), sample[:, 1].long()] = 1
+    return epeMap.nonzero()
+
 
 class EPEChecker: 
     def __init__(self, litho=lithosim.LithoSim("./config/lithosimple.txt"), thresh=0.5, device=DEVICE): 
