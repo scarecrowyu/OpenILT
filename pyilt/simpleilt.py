@@ -78,7 +78,8 @@ class SimpleILT:
             pvbl2 = func.mse_loss(printedMax, target, reduction="sum") + func.mse_loss(printedMin, target, reduction="sum")
             pvbloss = func.mse_loss(printedMax, printedMin, reduction="sum")
             pvband = torch.sum((printedMax >= self._config["TargetDensity"]) != (printedMin >= self._config["TargetDensity"]))
-            loss = l2loss + self._config["WeightPVBL2"] * pvbl2 + self._config["WeightPVBand"] * pvbloss
+            l2, pvb, epe, shot = evaluation.evaluate(mask, target, self._lithosim, scale=1, shots=False)
+            loss = l2loss + self._config["WeightPVBL2"] * pvbl2 + self._config["WeightPVBand"] * pvbloss + 20000*epe
             if not curv is None: 
                 kernelCurv = torch.tensor([[-1.0/16, 5.0/16, -1.0/16], [5.0/16, -1.0, 5.0/16], [-1.0/16, 5.0/16, -1.0/16]], dtype=REALTYPE, device=DEVICE)
                 curvature = func.conv2d(mask[None, None, :, :], kernelCurv[None, None, :, :])[0, 0]
@@ -164,8 +165,13 @@ def serial():
     cfg   = SimpleCfg("./config/simpleilt2048.txt")
     litho = lithosim.LithoSim("./config/lithosimple.txt")
     solver = SimpleILT(cfg, litho)
-    for idx in range(1, 11): 
-        design = glp.Design(f"./benchmark/ICCAD2013/M1_test{idx}.glp", down=SCALE)
+    folder_path = "/data/zyyu/GDSfile/gcd_45nm_clip/layer11/glp_ver/"
+    evaluate_files = ['cropped_10240-25600.glp', 'cropped_302080-66560.glp','cropped_189440-30720_.glp', 'cropped_40960-102400_.glp', 'cropped_71680-102400.glp', \
+                      'cropped_10240-97280.glp', 'cropped_10240-148480.glp', 'cropped_71680-220160.glp', 'cropped_56320-122880.glp', 'cropped_133120-209920.glp']
+    # for idx in range(1, 11): 
+    for eva_file in evaluate_files:
+        design = glp.Design(folder_path+eva_file, down=10)
+        # design = glp.Design(f"./benchmark/ICCAD2013/M1_test{idx}.glp", down=SCALE)
         design.center(cfg["TileSizeX"], cfg["TileSizeY"], cfg["OffsetX"], cfg["OffsetY"])
         target, params = initializer.PixelInit().run(design, cfg["TileSizeX"], cfg["TileSizeY"], cfg["OffsetX"], cfg["OffsetY"])
         
@@ -173,13 +179,13 @@ def serial():
         l2, pvb, bestParams, bestMask = solver.solve(target, params, curv=None)
         runtime = time.time() - begin
         
-        ref = glp.Design(f"./benchmark/ICCAD2013/M1_test{idx}.glp", down=1)
-        ref.center(cfg["TileSizeX"]*SCALE, cfg["TileSizeY"]*SCALE, cfg["OffsetX"]*SCALE, cfg["OffsetY"]*SCALE)
-        target, params = initializer.PixelInit().run(ref, cfg["TileSizeX"]*SCALE, cfg["TileSizeY"]*SCALE, cfg["OffsetX"]*SCALE, cfg["OffsetY"]*SCALE)
-        l2, pvb, epe, shot = evaluation.evaluate(bestMask, target, litho, scale=SCALE, shots=True)
-        cv2.imwrite(f"./tmp/MOSAIC_test{idx}.png", (bestMask * 255).detach().cpu().numpy())
-
-        print(f"[Testcase {idx}]: L2 {l2:.0f}; PVBand {pvb:.0f}; EPE {epe:.0f}; Shot: {shot:.0f}; SolveTime: {runtime:.2f}s")
+        # ref = glp.Design(f"./benchmark/ICCAD2013/M1_test{idx}.glp", down=1)
+        # ref.center(cfg["TileSizeX"]*SCALE, cfg["TileSizeY"]*SCALE, cfg["OffsetX"]*SCALE, cfg["OffsetY"]*SCALE)
+        # target, params = initializer.PixelInit().run(ref, cfg["TileSizeX"]*SCALE, cfg["TileSizeY"]*SCALE, cfg["OffsetX"]*SCALE, cfg["OffsetY"]*SCALE)
+        l2, pvb, epe, shot = evaluation.evaluate(bestMask, target, litho, scale=SCALE, shots=False)
+        # cv2.imwrite(f"./tmp/MOSAIC_test{idx}.png", (bestMask * 255).detach().cpu().numpy())
+        print(f"[Testcase {eva_file}]: L2 {l2:.0f}; PVBand {pvb:.0f}; EPE {epe:.0f}; Shot: {shot:.0f}; Runtime: {runtime:.2f}s")
+        # print(f"[Testcase {idx}]: L2 {l2:.0f}; PVBand {pvb:.0f}; EPE {epe:.0f}; Shot: {shot:.0f}; SolveTime: {runtime:.2f}s")
 
         l2s.append(l2)
         pvbs.append(pvb)

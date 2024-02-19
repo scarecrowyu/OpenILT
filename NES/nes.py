@@ -228,7 +228,7 @@ if __name__ == "__main__":
     BATCH = 1
     NOBJS = 1
     NVARS = 10
-    REFPOINT = [2e3 for _ in range(NOBJS)]
+    REFPOINT = [2e5 for _ in range(NOBJS)]
     # ranges = [(0, 1) for _ in range(NVARS)]
     ranges = [(50,100),(10,50),(60,120),(120,150),(10,30),(10,30), (10,20),(8,10),(8,10),(5,8),(30,100),(4,15),(5,20),(40,60),(1,5),(1,5),(1,5)]
     solver = NES(ranges, nobjs=1, mu=None, amat=None,

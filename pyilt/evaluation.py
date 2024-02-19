@@ -296,7 +296,8 @@ def evaluate(mask, target, litho, scale=1, shots=False, verbose=False):
     l2, pvb = test.run(mask, target, scale=scale)
     epeIn, epeOut = epeCheck.run(mask, target, scale=scale)
     epe = epeIn + epeOut
-    nshot = shotCount.run(mask, shape=(512, 512)) if shots else -1
+    nshot=0
+    # nshot = shotCount.run(mask, shape=(512, 512)) if shots else -1
     if verbose: 
         print(f"[{maskfile}]: L2 {l2:.0f}; PVBand {pvb:.0f}; EPE {epe:.0f}; Shot: {nshot:.0f}")
 

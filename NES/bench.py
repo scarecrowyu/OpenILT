@@ -1,5 +1,6 @@
 import os
 import sys
+sys.path.append(".")
 import glob
 import time
 import random
@@ -12,7 +13,7 @@ import torch.nn.functional as F
 import botorch
 from botorch.utils.multi_objective.hypervolume import Hypervolume
 from tqdm import tqdm
-
+from pyilt.mbopc import mbopcfunc_select
 from utils import calcHV, newParetoSet
 from testfunc import *
 
@@ -156,16 +157,17 @@ class RandomSearch(BlackSolver):
 
 
 def testBench0():
-    NITERS = 10
+    NITERS = 50
     BATCH = 1
     NOBJS = 1
     NVARS = 10
-    REFPOINT = [2e3 for _ in range(NOBJS)]
-    ranges = [(0, 1) for _ in range(NVARS)]
+    REFPOINT = [2e5 for _ in range(NOBJS)]
+    ranges = [(30,100),(10,50),(60,120),(120,200),(5,40),(5,50), (5,50),(5,10),(5,10),(5,10),(30,100),(5,30),(5,30),(40,60),(1,10),(1,10),(1,10)]
     solver = RandomSearch(ranges, nobjs=NOBJS)
-    problem = BatchWrapper(Branin, ndims=len(ranges))
+    problem = BatchWrapper(mbopcfunc_select, ndims = len(ranges))
     runner = BenchRunner(solver, problem, nobjs=NOBJS, refpoint=REFPOINT)
     result = runner.run(niters=NITERS, batch=BATCH)
+    print(f"Score: {result} <- {runner._params}")
     print(f"Score: {result}")
 
 def testBench1():
@@ -182,16 +184,18 @@ def testBench1():
     print(f"Score: {result}")
 
 def testOptuna0():
-    NITERS = 10
+    NITERS = 50
     BATCH = 1
     NOBJS = 1
     NVARS = 10
     REFPOINT = [2e3 for _ in range(NOBJS)]
-    ranges = [(0, 1) for _ in range(NVARS)]
+    ranges = [(30,100),(10,50),(60,120),(120,200),(5,40),(5,50), (5,50),(5,10),(5,10),(5,10),(30,100),(5,30),(5,20),(40,60),(1,10),(1,10),(1,10)]
+    # ranges = [(50,100),(10,50),(60,120),(120,150),(10,30),(10,30), (10,20),(8,10),(8,10),(5,8),(30,100),(4,15),(5,20),(40,60),(1,5),(1,5),(1,5)]
     solver = "NSGAII"
-    problem = BatchWrapper(Branin, ndims=len(ranges))
+    problem = BatchWrapper(mbopcfunc_select, ndims = len(ranges))
     runner = OptunaRunner(solver, problem, ranges, nobjs=NOBJS, refpoint=REFPOINT)
     result = runner.run(niters=NITERS, batch=BATCH)
+    print(f"Score: {result} <- {runner._params}")
     print(f"Score: {result}")
 
 def testOptuna1():
